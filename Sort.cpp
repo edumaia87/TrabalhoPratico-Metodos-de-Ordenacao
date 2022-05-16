@@ -3,15 +3,14 @@
 #include <time.h>
 #include <windows.h>
 #include "Sort.hpp"
-#define tam 1000
-#define tam1 10000
-#define tam2 100000
+#define tam1 1000
+#define tam2 10000
+#define tam3 100000
 using namespace std;
 
-
-int v[tam]; //Vetor para as Listas de tamanho 1000
-int v1[tam1]; //Vetor para as Listas de tamanho 10000
-int v2[tam2]; //Vetor para as Listas de tamanho 100000
+int v1[tam1]; //Vetor para as Listas de tamanho 1000
+int v2[tam2]; //Vetor para as Listas de tamanho 10000
+int v3[tam3]; //Vetor para as Listas de tamanho 100000
 
 //Menu Principal.
 void menu() {
@@ -82,7 +81,7 @@ void menu2() {
 void CallMenu(int optionSort, int optionInstance) {
     do {
         menu2();
-        cout << "Escolha a lista desejada: ";
+        cout << "Escolha a instância desejada: ";
 
         cin >> optionInstance;
         system("cls");
@@ -219,6 +218,7 @@ void ShellSort(int list[], int size) {
 int ReadFile1000(ifstream &arq, int v[], int option) { 
     int count = 0;
 
+    //CallMenu(option, optionInstance);
     if(option == 1) {
         arq.open("ListaAleatoria-1000.txt");
 
@@ -297,7 +297,7 @@ int ReadFile10000(ifstream &arq, int v1[], int option) {
             arq.clear();
         } else {
             while(!arq.eof()) {
-                arq >> v[count]; 
+                arq >> v1[count]; 
                 count++;
             }
         }
@@ -313,7 +313,7 @@ int ReadFile10000(ifstream &arq, int v1[], int option) {
             arq.clear();
         } else {
             while(!arq.eof()) {
-                arq >> v[count]; 
+                arq >> v1[count]; 
                 count++;
             }
         }
@@ -329,7 +329,7 @@ int ReadFile10000(ifstream &arq, int v1[], int option) {
             arq.clear();
         } else {
             while(!arq.eof()) {
-                arq >> v[count]; 
+                arq >> v1[count]; 
                 count++;
             }
         }
@@ -345,7 +345,7 @@ int ReadFile10000(ifstream &arq, int v1[], int option) {
             arq.clear();
         } else {
             while(!arq.eof()) {
-                arq >> v[count]; 
+                arq >> v1[count]; 
                 count++;
             }
         }
@@ -368,7 +368,7 @@ int ReadFile100000(ifstream &arq, int v2[], int option) {
             arq.clear();
         } else {
             while(!arq.eof()) {
-                arq >> v[count]; 
+                arq >> v2[count]; 
                 count++;
             }
         }
@@ -384,7 +384,7 @@ int ReadFile100000(ifstream &arq, int v2[], int option) {
             arq.clear();
         } else {
             while(!arq.eof()) {
-                arq >> v[count]; 
+                arq >> v2[count]; 
                 count++;
             }
         }
@@ -400,7 +400,7 @@ int ReadFile100000(ifstream &arq, int v2[], int option) {
             arq.clear();
         } else {
             while(!arq.eof()) {
-                arq >> v[count]; 
+                arq >> v2[count]; 
                 count++;
             }
         }
@@ -416,7 +416,7 @@ int ReadFile100000(ifstream &arq, int v2[], int option) {
             arq.clear();
         } else {
             while(!arq.eof()) {
-                arq >> v[count]; 
+                arq >> v2[count]; 
                 count++;
             }
         }
@@ -436,54 +436,201 @@ void PrintArray(int v[], int size){
 }
 
 // Funções que irão ordernar de fato os arquivos
-int SortFile1000(ifstream arq, int v1[], int n, int option, int op) {
-    clock_t startCount, endCount;
-    long double clockCount, elapsedTime;
+int SortFile1000(ifstream &arq, int v1[], int size, int option, int op) {
+    clock_t startCount, endCount; // Variáveis que receberão a contagem do inicio e fim da ordenação.
+    long double clockCount, elapsedTime; // Variáveis que receberão respectivamente o tempo de execução e a conversão para segundos.
 
-    ReadFile1000(arq, v, option);
+    ReadFile1000(arq, v1, op); // Chamada da função que lê os arquivos de tamanho 1000.
 
-    if(op == 1) {
+    if(option == 1) {
         startCount = clock(); // Inicio da contagem.
-        BubbleSort(v);        // Ordenando os números presentes no arquivo.
+        BubbleSort(v1, size);        // Ordenando os números presentes no arquivo.
         endCount = clock();   //Encerramento da contagem.
 
         clockCount = endCount - startCount; // Calculando o tempo de execução.
         elapsedTime = clockCount / CLOCKS_PER_SEC; // Faz a conversão para segundos.
 
-        PrintArray(v1, tam);
+    } else if(option == 2) {
+        startCount = clock(); 
+        InsertionSort(v1, size);        
+        endCount = clock();  
+
+        clockCount = endCount - startCount; 
+        elapsedTime = clockCount / CLOCKS_PER_SEC; 
+
+        PrintArray(v1, tam1);
+
+    } else if(option == 3) {
+        startCount = clock(); 
+        SelectionSort(v1, size);       
+        endCount = clock();  
+
+        clockCount = endCount - startCount;
+        elapsedTime = clockCount / CLOCKS_PER_SEC; 
+
+        PrintArray(v1, tam1);
+
+    } else if(option == 4) {
+        startCount = clock(); 
+        //QuickSort(v, size);       
+        endCount = clock();  
+
+        clockCount = endCount - startCount;
+        elapsedTime = clockCount / CLOCKS_PER_SEC; 
+
+        PrintArray(v1, tam1);
+        
+    }  else if(option == 5) {
+        startCount = clock(); 
+        //MergeSort(v, size);       
+        endCount = clock();  
+
+        clockCount = endCount - startCount;
+        elapsedTime = clockCount / CLOCKS_PER_SEC; 
+
+        PrintArray(v1, tam1);
+        
+    } else if(option == 6) {
+        startCount = clock(); 
+        ShellSort(v1, size);       
+        endCount = clock();  
+
+        clockCount = endCount - startCount;
+        elapsedTime = clockCount / CLOCKS_PER_SEC; 
+
+        PrintArray(v1, tam1); 
     }
 }
-int SortFile10000(ifstream arq, int v1[], int n, int option, int op) {
+void SortFile10000(ifstream arq, int v2[], int size, int option, int op) {
     clock_t startCount, endCount;
     long double clockCount, elapsedTime;
 
-    ReadFile10000(arq, v, option);
+    ReadFile10000(arq, v2, option);
     if(op == 1) {
         startCount = clock(); // Inicio da contagem.
-        BubbleSort(v);        // Ordenando os números presentes no arquivo.
+        BubbleSort(v2, size);        // Ordenando os números presentes no arquivo.
         endCount = clock();   //Encerramento da contagem.
 
         clockCount = endCount - startCount; // Calculando o tempo de execução.
         elapsedTime = clockCount / CLOCKS_PER_SEC; // Faz a conversão para segundos.
 
-        //PrintArray();
+        PrintArray(v2, tam2);
+
+    } else if(op == 2) {
+        startCount = clock(); 
+        InsertionSort(v2, tam2); 
+        endCount = clock(); 
+
+        clockCount = endCount - startCount; 
+        elapsedTime = clockCount / CLOCKS_PER_SEC; 
+
+        PrintArray(v2, tam2);
+
+    } else if(op == 3) {
+        startCount = clock(); 
+        SelectionSort(v2, size);      
+        endCount = clock();  
+
+        clockCount = endCount - startCount;
+        elapsedTime = clockCount / CLOCKS_PER_SEC;
+
+        PrintArray(v2, tam2);
+
+    } else if(op == 4) {
+        startCount = clock(); 
+        //QuickSort(v2, size);       
+        endCount = clock();  
+
+        clockCount = endCount - startCount;
+        elapsedTime = clockCount / CLOCKS_PER_SEC; 
+
+        PrintArray(v2, tam2);
+        
+    }  else if(op == 5) {
+        startCount = clock(); 
+        //MergeSort(v2, size);       
+        endCount = clock();  
+
+        clockCount = endCount - startCount;
+        elapsedTime = clockCount / CLOCKS_PER_SEC; 
+
+        PrintArray(v2, tam2);
+        
+    } else if(op == 6) {
+        startCount = clock(); 
+        ShellSort(v2, size);       
+        endCount = clock();  
+
+        clockCount = endCount - startCount;
+        elapsedTime = clockCount / CLOCKS_PER_SEC; 
+
+        PrintArray(v2, tam2); 
     }
 }
-int SortFile100000(ifstream arq, int v2[], int n, int option, int op) {
+void SortFile100000(ifstream arq, int v3[], int size, int option, int op) {
     clock_t startCount, endCount;
     long double clockCount, elapsedTime;
 
-    ReadFile100000(arq, v, option);
+    ReadFile100000(arq, v3, option);
 
     if(op == 1) {
-        startCount = clock(); // Inicio da contagem.
-        BubbleSort(v);        // Ordenando os números presentes no arquivo.
-        endCount = clock();   //Encerramento da contagem.
+        startCount = clock(); 
+        BubbleSort(v3, size);       
+        endCount = clock(); 
 
-        clockCount = endCount - startCount; // Calculando o tempo de execução.
-        elapsedTime = clockCount / CLOCKS_PER_SEC; // Faz a conversão para segundos.
+        clockCount = endCount - startCount; 
+        elapsedTime = clockCount / CLOCKS_PER_SEC; 
 
         //PrintArray();
+    }else if(op == 2) {
+        startCount = clock(); 
+        InsertionSort(v3, size); 
+        endCount = clock(); 
+
+        clockCount = endCount - startCount; 
+        elapsedTime = clockCount / CLOCKS_PER_SEC; 
+
+        PrintArray(v3, tam3);
+
+    } else if(op == 3) {
+        startCount = clock(); 
+        SelectionSort(v3, size);      
+        endCount = clock();  
+
+        clockCount = endCount - startCount;
+        elapsedTime = clockCount / CLOCKS_PER_SEC;
+
+        PrintArray(v3, tam3);
+
+    } else if(op == 4) {
+        startCount = clock(); 
+        //QuickSort(v3, size);       
+        endCount = clock();  
+
+        clockCount = endCount - startCount;
+        elapsedTime = clockCount / CLOCKS_PER_SEC; 
+
+        PrintArray(v3, tam3);
+        
+    }  else if(op == 5) {
+        startCount = clock(); 
+        //MergeSort(v3, size);       
+        endCount = clock();  
+
+        clockCount = endCount - startCount;
+        elapsedTime = clockCount / CLOCKS_PER_SEC; 
+
+        PrintArray(v3, tam3);
+        
+    } else if(op == 6) {
+        startCount = clock(); 
+        ShellSort(v3, size);       
+        endCount = clock();  
+
+        clockCount = endCount - startCount;
+        elapsedTime = clockCount / CLOCKS_PER_SEC; 
+
+        PrintArray(v3, tam3); 
     }
 }
 
