@@ -6,6 +6,8 @@
 
 using namespace std;
 
+int v[tam];
+
 void menu() {
     system("color 0B");
     cout << "  \n        ����������������������������������������������������������������";
@@ -88,73 +90,81 @@ int teste() {
     return optionInstance;
 }
 
-void ReadFile1000(ifstream &arq, int v[], int option) { 
-    int count = 0;
+void ReadFile1000(int v[], int op, int size) { 
+    ifstream arq;
+    //int count = 0;
 
-    if(option == 1) {
+    if(op == 1) {
         arq.open("ListaAleatoria-1000.txt");
 
         if (arq.fail()) {
             cerr << "Houve um problema ao criar o arquivo!\n";
             arq.clear();
         } else {
-            while(!arq.eof()) {
-                arq >> v[count]; 
-                count++;
+            for (int i = 0; i < size; i++) {
+               arq >> v[i]; 
             }
+            // while(!arq.eof()) {
+                
+            //     count++;
+            // }
         }
         arq.close();
 
-    } else if(option == 2) {
-        ifstream arq;
+    } else if(op == 2) {
         arq.open("ListaQuaseOrdenada-1000.txt");
 
         if (arq.fail()) {
             cerr << "Houve um problema ao criar o arquivo!\n";
             arq.clear();
         } else {
-            while(!arq.eof()) {
-                arq >> v[count]; 
-                count++;
+             for (int i = 0; i < size; i++) {
+               arq >> v[i]; 
             }
+            // while(!arq.eof()) {
+            //     arq >> v[count]; 
+            //     count++;
+            // }
         }
     
         arq.close();
 
-    } else if(option == 3) {
-        ifstream arq;
+    } else if(op == 3) {
         arq.open("ListaInversamenteOrdenada-1000.txt");
 
         if (arq.fail()) {
             cerr << "Houve um problema ao criar o arquivo!\n";
             arq.clear();
         } else {
-            while(!arq.eof()) {
-                arq >> v[count]; 
-                count++;
+             for (int i = 0; i < size; i++) {
+               arq >> v[i]; 
             }
+            // while(!arq.eof()) {
+            //     arq >> v[count]; 
+            //     count++;
+            // }
         }
     
         arq.close();
 
-    } else if(option == 4) {
-        ifstream arq;
+    } else if(op == 4) {
         arq.open("ListaOrdenada-1000.txt");
 
         if (arq.fail()) {
             cerr << "Houve um problema ao criar o arquivo!\n";
             arq.clear();
         } else {
-            while(!arq.eof()) {
-                arq >> v[count]; 
-                count++;
+            for (int i = 0; i < size; i++) {
+               arq >> v[i]; 
             }
+            // while(!arq.eof()) {
+            //     arq >> v[count]; 
+            //     count++;
+            // }
         }
     
         arq.close();
-    } else {
-        cerr << "Opção inválida";
-    }   
+    }
 }
 
 int BubbleSort(int list[], int size) {
@@ -163,7 +173,7 @@ int BubbleSort(int list[], int size) {
     for(int i = 0; i < size-1; i++) {
         trade = 0;
         for(int j = 1; j <size-i; j++) {
-            if(list[j] > list[j-1]) {
+            if(list[j] < list[j-1]) {
                 aux = list[j];
                 list[j] = list[j-1];
                 list[j-1] = aux;
@@ -178,21 +188,23 @@ int BubbleSort(int list[], int size) {
     return tradeCount;
 }
 
-int SortFile1000(ifstream &arq, int v1[], int size, int option) {
+void SortFile1000(int v[], int size, int option, int op) {
     clock_t startCount, endCount; // Variáveis que receberão a contagem do inicio e fim da ordenação.
     long double clockCount, elapsedTime; // Variáveis que receberão respectivamente o tempo de execução e a conversão para segundos.
 
-    ReadFile1000(arq, v1, option); // Chamada da função que lê os arquivos de tamanho 1000.
+    ReadFile1000(v, op, tam); // Chamada da função que lê os arquivos de tamanho 1000.
 
     if(option == 1) {
         startCount = clock(); // Inicio da contagem.
-        BubbleSort(v1, size);        // Ordenando os números presentes no arquivo.
+        BubbleSort(v, tam);        // Ordenando os números presentes no arquivo.
         endCount = clock();   //Encerramento da contagem.
 
         clockCount = endCount - startCount; // Calculando o tempo de execução.
         elapsedTime = clockCount / CLOCKS_PER_SEC; // Faz a conversão para segundos.
 
-        PrintArray(v1, size);
+        PrintArray(v, tam);
+
+        cout << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
     // } else if(option == 2) {
     //     startCount = clock(); 
     //     InsertionSort(v1, size);        
@@ -244,16 +256,12 @@ int SortFile1000(ifstream &arq, int v1[], int size, int option) {
     //     //PrintArray(v1, tam1); 
     // }
 
-    return elapsedTime;
 }
 
-void CallMenu(ifstream &arq, int v1[], int size, int option) {
-    option = teste();
-    do {
-        if(option == 1) {
-            SortFile1000(arq, v1, size, 1);  
-        }
-    } while(option != 7);
+void CallMenu(int v[], int size, int option, int op) {
+    if((option == 1) && (op  == 1 || op == 2 || op == 3 || op == 4)) { // TODO: Fazer a mesma coisa pros outros métodos.
+        SortFile1000(v, tam, option, op);  
+    } 
 }
 
 int main() {
@@ -261,8 +269,7 @@ int main() {
     UINT CPAGE_DEFAULT = GetConsoleOutputCP();
     SetConsoleOutputCP(CPAGE_UTF8);
     
-    ifstream arq;
-    int v[tam], option;
+    int option, op;
 
     do {
         menu();
@@ -270,8 +277,8 @@ int main() {
         cin >> option;
         switch(option) {
             case 1:
-                int op = teste();
-                CallMenu(arq, v, tam, op);
+                op = teste();
+                CallMenu(v, tam, option, op);
                 break;
             // case 2:
             //     ReadFile1000(arq, v, option);

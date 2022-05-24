@@ -13,7 +13,6 @@ int main() {
     SetConsoleOutputCP(CPAGE_UTF8);
 
     int optionSort;
-    int list[10], n;
     int optionInstances;
 
     do {
