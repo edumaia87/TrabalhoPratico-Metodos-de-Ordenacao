@@ -9,11 +9,11 @@
 
 using namespace std;
 
-int v1[tam1]; //Vetor para as Listas de tamanho 1000
-int v2[tam2]; //Vetor para as Listas de tamanho 10000
-int v3[tam3]; //Vetor para as Listas de tamanho 100000
+int v1[tam1]; // Vetor para as Listas de tamanho 1000
+int v2[tam2]; // Vetor para as Listas de tamanho 10000
+int v3[tam3]; // Vetor para as Listas de tamanho 100000
 
-//Menu Principal.
+// Menu Principal.
 void menu() {
     system("color 0B");
     cout << "  \n        ����������������������������������������������������������������";
@@ -40,7 +40,7 @@ void menu() {
  
 }
 
-//Menu onde será escolhida a Lista a ser ordenada.
+// Menu onde será escolhida a Lista a ser ordenada.
 void menu2() {
     system("color 0B");
     cout << "  \n        ����������������������������������������������������������������";
@@ -79,7 +79,7 @@ void menu2() {
  
 }
 
-//Métodos de Ordenação.
+// Métodos de Ordenação.
 int BubbleSort(int list[], int size) {
     int aux, trade, tradeCount = 0;
 
@@ -149,7 +149,7 @@ void SelectionSort(int list[], int size) {
     }
 }
 
-int compare(const void *a, const void *b) { //função que complementa o Quick Sort.
+int compare(const void *a, const void *b) { // função que complementa o Quick Sort.
     const int *x = (int *)a;
     const int *y = (int *)b;
 
@@ -161,7 +161,7 @@ int compare(const void *a, const void *b) { //função que complementa o Quick S
     return 0;
 }
 
-//Une 2 subvetores L e M dentro do vetor principal.
+// Une 2 subvetores L e M dentro do vetor principal.
 void Merge(int list[], int p, int q, int r) {
 
     int n1 = q - p + 1;
@@ -203,16 +203,16 @@ void Merge(int list[], int p, int q, int r) {
     }
 }
 
-//Divide o vetor em 2 subvetores ordenam os 2 e depois os une.
+// Divide o vetor em 2 subvetores ordenam os 2 e depois os une.
 void MergeSort(int list[], int left, int right) {
     if (left < right) {
-        //middle é o ponto onde o vetor é dividido em 2 subvetores.
+        // middle é o ponto onde o vetor é dividido em 2 subvetores.
         int middle = left + (right - left) / 2;
 
         MergeSort(list, left, middle);
         MergeSort(list, middle + 1, right);
 
-        //Une os subvetores ordenados.
+        // Une os subvetores ordenados.
         Merge(list, left, middle, right);
     }
 }
@@ -427,7 +427,7 @@ void PrintArray(int v[], int size) {
 }
 
 // Funções que irão ordernar de fato os arquivos
-void SortFile1000(int v1[], int option, int op) {
+void SortFile1000(int v1[], int option, int op) {  // Função que irá ordernar os arquivos de tamanho 1.000.
     clock_t startCount, endCount; // Variáveis que receberão a contagem do inicio e fim da ordenação.
     long double clockCount, elapsedTime; // Variáveis que receberão respectivamente o tempo de execução e a conversão para segundos.
 
@@ -500,7 +500,7 @@ void SortFile1000(int v1[], int option, int op) {
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
     }
 }
-void SortFile10000(int v2[], int option, int op) { 
+void SortFile10000(int v2[], int option, int op) { // Função que irá ordernar os arquivos de tamanho 10.000.
     clock_t startCount, endCount;
     long double clockCount, elapsedTime;
 
@@ -572,7 +572,7 @@ void SortFile10000(int v2[], int option, int op) {
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
     }
 }
-void SortFile100000(int v3[], int option, int op) {
+void SortFile100000(int v3[], int option, int op) { // Função que irá ordernar os arquivos de tamanho 100.000.
     clock_t startCount, endCount;
     long double clockCount, elapsedTime;
 
