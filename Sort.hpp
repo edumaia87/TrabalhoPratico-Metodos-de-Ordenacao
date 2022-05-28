@@ -10,7 +10,7 @@ int BubbleSort(int list[], int size);
 void InsertionSort(int list[], int size);
 void SelectionSort(int list[], int size);
 void ShellSort(int list[], int size);
-
+int compare(const void *a, const void *b); //função que complementa o Quick Sort.
 //Função que vai armazenar e tratar a opção escolhida pelo usuário.
 void CallUserOption(int option, int op);
 
