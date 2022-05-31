@@ -236,7 +236,6 @@ void ShellSort(int list[], int size) {
                 // }
             }
             list[j] = x;
-            cout << endl;
         }
     }
 }
