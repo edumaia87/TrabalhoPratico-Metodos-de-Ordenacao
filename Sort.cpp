@@ -237,7 +237,10 @@ void ShellSort(int list[], int size, unsigned long long *comparisons) {
                 (*comparisons)++;
             }
             list[j] = x;
+<<<<<<< HEAD
             (*comparisons)++;
+=======
+>>>>>>> 53213185ef16f7700cb2d62e312ddcd070e7fe2f
         }
     }
 }

@@ -104,10 +104,6 @@ void ReadFile1000(int v[], int op, int size) {
             for (int i = 0; i < size; i++) {
                arq >> v[i]; 
             }
-            // while(!arq.eof()) {
-                
-            //     count++;
-            // }
         }
         arq.close();
 
@@ -121,10 +117,6 @@ void ReadFile1000(int v[], int op, int size) {
              for (int i = 0; i < size; i++) {
                arq >> v[i]; 
             }
-            // while(!arq.eof()) {
-            //     arq >> v[count]; 
-            //     count++;
-            // }
         }
     
         arq.close();
@@ -139,10 +131,6 @@ void ReadFile1000(int v[], int op, int size) {
              for (int i = 0; i < size; i++) {
                arq >> v[i]; 
             }
-            // while(!arq.eof()) {
-            //     arq >> v[count]; 
-            //     count++;
-            // }
         }
     
         arq.close();
@@ -157,10 +145,6 @@ void ReadFile1000(int v[], int op, int size) {
             for (int i = 0; i < size; i++) {
                arq >> v[i]; 
             }
-            // while(!arq.eof()) {
-            //     arq >> v[count]; 
-            //     count++;
-            // }
         }
     
         arq.close();
