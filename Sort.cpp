@@ -80,7 +80,7 @@ void menu2() {
 }
 
 // Métodos de Ordenação.
-int BubbleSort(int list[], int size) {
+int BubbleSort(int list[], int size, unsigned long long *comparisons) {
     int aux, trade, tradeCount = 0;
 
     for(int i = 0; i < size-1; i++) {
@@ -92,7 +92,10 @@ int BubbleSort(int list[], int size) {
                 list[j-1] = aux;
                 trade = 1;
                 tradeCount++;
-            } 
+                (*comparisons)++;
+            } else {
+                (*comparisons)++;
+            }
         }
         if(trade == 0) {
             break;
@@ -101,33 +104,23 @@ int BubbleSort(int list[], int size) {
     return tradeCount;
 }
 
-void InsertionSort(int list[], int size) {
+void InsertionSort(int list[], int size, unsigned long long *comparisons) {
     int key, j;
 
     for (int i=1; i<size; i++) {
         key = list[i];
         j = i-1;
-
+        (*comparisons)++;
         while(j>=0 && list[j] > key) {
             list[j+1] = list[j];           
-            j--;    
+            j--;  
+            (*comparisons)++;  
         }
         list[j+1] = key;
-
-        // cout << i << "º Passo" << endl;
-        // for(int i=0; i<n; i++) {
-        //         cout << list[i] << " ";
-        //     } 
-        // cout << endl; 
     }
-
-    // cout<< "\n" << "Resultado final" << endl;
-    // for(int i=0; i<size; i++) {
-    //     cout << list[i] << " ";
-    // }  
 }
 
-void SelectionSort(int list[], int size) {
+void SelectionSort(int list[], int size, unsigned long long *comparisons) {
     int min, aux;
 
     for(int i=0; i<size-1; i++) {
@@ -135,35 +128,49 @@ void SelectionSort(int list[], int size) {
         for(int j=i+1; j<size; j++) {
             if(list[j] < list[min]) {
                 min = j;
-            }            
+                (*comparisons)++;
+            } else {
+                (*comparisons)++;
+            }        
         }
         aux = list[i];
         list[i] = list[min];
         list[min] = aux;
-
-    //     cout << i+1 << "º Passo" << endl;
-    //     for(int i=0; i<n; i++) {
-    //             cout << list[i] << " ";
-    //         } 
-    //     cout << endl; 
     }
 }
 
-int compare(const void *a, const void *b) { // função que complementa o Quick Sort.
-    const int *x = (int *)a;
-    const int *y = (int *)b;
+void QuickSort(int list[],int left, int right, unsigned long long *comparisons) {
 
-    if (*x > *y)
-        return 1;
-    else if (*x < *y)
-        return -1;
+    int temp, i = left, j = right;
+    int pivot = list[(left + right) / 2];
 
-    return 0;
+    while(i <= j){
+        while(list[i] < pivot){
+            i++;
+        }
+        while(list[j] > pivot){
+            j--;
+        }
+        (*comparisons)++;
+        if(i <= j){
+            temp = list[i];
+            list[i] = list[j];
+            list[j] = temp;
+            i++;
+            j--;
+        }
+    }
+    (*comparisons)++;
+    if(left < j){
+        QuickSort(list,left,j,comparisons);
+    }
+    if(i < right){
+        QuickSort(list,i,right,comparisons);
+    }
 }
 
 // Une 2 subvetores L e M dentro do vetor principal.
-void Merge(int list[], int p, int q, int r) {
-
+void Merge(int list[], int p, int q, int r, unsigned long long *comparisons) {
     int n1 = q - p + 1;
     int n2 = r - q;
 
@@ -180,6 +187,7 @@ void Merge(int list[], int p, int q, int r) {
     int i = 0, j = 0, k = p;
 
     while (i < n1 && j < n2) {
+        (*comparisons)++;
         if (L[i] <= M[j]) {
             list[k] = L[i];
             i++;
@@ -204,20 +212,17 @@ void Merge(int list[], int p, int q, int r) {
 }
 
 // Divide o vetor em 2 subvetores ordenam os 2 e depois os une.
-void MergeSort(int list[], int left, int right) {
+void MergeSort(int list[], int left, int right, unsigned long long *comparisons) {
     if (left < right) {
-        // middle é o ponto onde o vetor é dividido em 2 subvetores.
         int middle = left + (right - left) / 2;
 
-        MergeSort(list, left, middle);
-        MergeSort(list, middle + 1, right);
-
-        // Une os subvetores ordenados.
-        Merge(list, left, middle, right);
+        MergeSort(list, left, middle, comparisons);
+        MergeSort(list, middle + 1, right, comparisons);
+        Merge(list, left, middle, right, comparisons);
     }
 }
 
-void ShellSort(int list[], int size) {
+void ShellSort(int list[], int size, unsigned long long *comparisons) {
     int h, x, i, j;
 
     for(h=1; h<size; h=3*h+1);
@@ -229,27 +234,23 @@ void ShellSort(int list[], int size) {
             while(j>=h && list[j-h] > x) {
                 list[j] = list[j-h];
                 j = j - h;
-
-                // cout << i << "º Passo" << endl;
-                // for(int i=0; i<n; i++) {
-                //     cout << list[i] << " ";
-                // }
+                (*comparisons)++;
             }
             list[j] = x;
-            cout << endl;
+            (*comparisons)++;
         }
     }
 }
 
-int ReadOptionInstance() { // Função que armazenará a opção da instância escolhida pelo usuário.
-    int optionInstance;
+int ReadInstanceOption() { // Função que armazenará a opção da instância escolhida pelo usuário.
+    int instanceOption;
 
     menu2();
     cout << "Escolha a instância desejada: ";
-    cin >> optionInstance;
+    cin >> instanceOption;
     system("cls");
 
-    return optionInstance;
+    return instanceOption;
 }
 
 void ReadFile(int v[], int option, int size) { // Função para realizar a leitura dos arquivos.
@@ -426,8 +427,379 @@ void PrintArray(int v[], int size) {
     cout << endl << endl;
 }
 
+//Função que irá gravar os dados das análises no arquivo
+void WriteFile(long double elapsedTime, unsigned long long comparisons, int methodOption, int instanceOption) { 
+    ofstream arq("Analises.txt", ios::app);
+
+    if(!arq.fail()) {
+        if(methodOption == 1 && instanceOption == 1) { // Compara o que será gravado baseada nas escolhas de método e instâncias feitas pelo usuário
+            arq << "Método utilizado: BubbleSort - Lista aleatória de 1000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 1 && instanceOption == 2) {
+            arq << endl << "Método utilizado: BubbleSort - Lista quase ordenada de 1000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 1 && instanceOption == 3) {
+            arq << endl << "Método utilizado: BubbleSort - Lista inversamente ordenada de 1000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 1 && instanceOption == 4) {
+            arq << endl << "Método utilizado: BubbleSort - Lista ordenada de 1000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 1 && instanceOption == 5) {
+            arq << endl << "Método utilizado: Insertion - Lista aleatória de 10000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 1 && instanceOption == 6) {
+            arq << endl << "Método utilizado: BubbleSort - Lista quase ordenada de 10000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 1 && instanceOption == 7) {
+            arq << endl << "Método utilizado: BubbleSort - Lista inversamente ordenada de 10000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 1 && instanceOption == 8) {
+            arq << endl << "Método utilizado: BubbleSort - Lista ordenada de 10000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 1 && instanceOption == 9) {
+            arq << endl << "Método utilizado: BubbleSort - Lista aleatória de 100000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 1 && instanceOption == 10) {
+            arq << endl << "Método utilizado: BubbleSort - Lista quase ordenada de 100000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 1 && instanceOption == 11) {
+            arq << endl << "Método utilizado: BubbleSort - Lista inversamente ordenada de 100000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 1 && instanceOption == 12) {
+            arq << endl << "Método utilizado: BubbleSort - Lista ordenada de 100000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 2 && instanceOption == 1) {
+            arq << endl << "Método utilizado: InsertionSort - Lista aleatória de 1000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 2 && instanceOption == 2) {
+            arq << endl << "Método utilizado: InsertionSort - Lista quase ordenada de 1000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 2 && instanceOption == 3) {
+            arq << endl << "Método utilizado: InsertionSort - Lista inversamente ordenada de 1000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 2 && instanceOption == 4) {
+            arq << endl << "Método utilizado: InsertionSort - Lista ordenada de 1000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 2 && instanceOption == 5) {
+            arq << endl << "Método utilizado: InsertionSort - Lista aleatória de 10000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 2 && instanceOption == 6) {
+            arq << endl << "Método utilizado: InsertionSort - Lista quase ordenada de 10000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 2 && instanceOption == 7) {
+            arq << endl << "Método utilizado: InsertionSort - Lista inversamente ordenada de 10000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 2 && instanceOption == 8) {
+            arq << endl << "Método utilizado: InsertionSort - Lista ordenada de 10000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 2 && instanceOption == 9) {
+            arq << endl << "Método utilizado: InsertionSort - Lista aleatória de 100000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 2 && instanceOption == 10) {
+            arq << endl << "Método utilizado: InsertionSort - Lista quase ordenada de 100000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 2 && instanceOption == 11) {
+            arq << endl << "Método utilizado: InsertionSort - Lista inversamente ordenada de 100000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 2 && instanceOption == 12) {
+            arq << endl << "Método utilizado: InsertionSort - Lista ordenada de 100000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 3 && instanceOption == 1) {
+            arq << endl << "Método utilizado: SelectionSort - Lista aleatória de 1000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 3 && instanceOption == 2) {
+            arq << endl << "Método utilizado: SelectionSort - Lista quase ordenada de 1000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 3 && instanceOption == 3) {
+            arq << endl << "Método utilizado: SelectionSort - Lista inversamente ordenada de 1000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 3 && instanceOption == 4) {
+            arq << endl << "Método utilizado: SelectionSort - Lista ordenada de 1000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 3 && instanceOption == 5) {
+            arq << "Método utilizado: SelectionSort - Lista aleatória de 10000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 3 && instanceOption == 6) {
+            arq << endl << "Método utilizado: SelectionSort - Lista quase ordenada de 10000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 3 && instanceOption == 7) {
+            arq << endl << "Método utilizado: SelectionSort - Lista inversamente ordenada de 10000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 3 && instanceOption == 8) {
+            arq << endl << "Método utilizado: SelectionSort - Lista ordenada de 10000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 3 && instanceOption == 9) {
+            arq << endl << "Método utilizado: SelectionSort - Lista aleatória de 100000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 3 && instanceOption == 10) {
+            arq << endl << "Método utilizado: SelectionSort - Lista quase ordenada de 100000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 3 && instanceOption == 11) {
+            arq << endl << "Método utilizado: SelectionSort - Lista inversamente ordenada de 100000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 3 && instanceOption == 12) {
+            arq << endl << "Método utilizado: SelectionSort - Lista ordenada de 100000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 4 && instanceOption == 1) {
+            arq << endl << "Método utilizado: QuickSort - Lista aleatória de 1000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 4 && instanceOption == 2) {
+            arq << endl << "Método utilizado: QuickSort - Lista quase ordenada de 1000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 4 && instanceOption == 3) {
+            arq << endl << "Método utilizado: QuickSort - Lista inversamente ordenada de 1000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 4 && instanceOption == 4) {
+            arq << endl << "Método utilizado: QuickSort - Lista ordenada de 1000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 4 && instanceOption == 5) {
+            arq << endl << "Método utilizado: QuickSort - Lista aleatória de 10000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 4 && instanceOption == 6) {
+            arq << endl << "Método utilizado: QuickSort - Lista quase ordenada de 10000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 4 && instanceOption == 7) {
+            arq << endl << "Método utilizado: QuickSort - Lista inversamente ordenada de 10000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 4 && instanceOption == 8) {
+            arq << endl << "Método utilizado: QuickSort - Lista ordenada de 10000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 4 && instanceOption == 9) {
+            arq << endl << "Método utilizado: QuickSort - Lista aleatória de 100000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 4 && instanceOption == 10) {
+            arq << endl << "Método utilizado: QuickSort - Lista quase ordenada de 100000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 4 && instanceOption == 11) {
+            arq << endl << "Método utilizado: QuickSort - Lista inversamente ordenada de 100000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 4 && instanceOption == 12) {
+            arq << endl << "Método utilizado: QuickSort - Lista ordenada de 100000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 5 && instanceOption == 1) {
+            arq << endl << "Método utilizado: MergeSort - Lista aleatória de 1000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 5 && instanceOption == 2) {
+            arq << endl << "Método utilizado: MergeSort - Lista quase ordenada de 1000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 5 && instanceOption == 3) {
+            arq << endl << "Método utilizado: MergeSort - Lista inversamente ordenada de 1000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 5 && instanceOption == 4) {
+            arq << endl << "Método utilizado: MergeSort - Lista ordenada de 1000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 5 && instanceOption == 5) {
+            arq << "Método utilizado: MergeSort - Lista aleatória de 10000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 5 && instanceOption == 6) {
+            arq << endl << "Método utilizado: MergeSort - Lista quase ordenada de 10000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 5 && instanceOption == 7) {
+            arq << endl << "Método utilizado: MergeSort - Lista inversamente ordenada de 10000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 5 && instanceOption == 8) {
+            arq << endl << "Método utilizado: MergeSort - Lista ordenada de 10000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 5 && instanceOption == 9) {
+            arq << endl << "Método utilizado: MergeSort - Lista aleatória de 100000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 5 && instanceOption == 10) {
+            arq << endl << "Método utilizado: MergeSort - Lista quase ordenada de 100000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 5 && instanceOption == 11) {
+            arq << endl << "Método utilizado: MergeSort - Lista inversamente ordenada de 100000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 5 && instanceOption == 12) {
+            arq << endl << "Método utilizado: MergeSort - Lista ordenada de 100000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 6 && instanceOption == 1) {
+            arq << endl << "Método utilizado: ShellSort - Lista aleatória de 1000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 6 && instanceOption == 2) {
+            arq << endl << "Método utilizado: ShellSort - Lista quase ordenada de 1000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 6 && instanceOption == 3) {
+            arq << endl << "Método utilizado: ShellSort - Lista inversamente ordenada de 1000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 6 && instanceOption == 4) {
+            arq << endl << "Método utilizado: ShellSort - Lista ordenada de 1000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 6 && instanceOption == 5) {
+            arq << endl << "Método utilizado: ShellSort - Lista aleatória de 10000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 6 && instanceOption == 6) {
+            arq << endl << "Método utilizado: ShellSort - Lista quase ordenada de 10000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 6 && instanceOption == 7) {
+            arq << endl << "Método utilizado: ShellSort - Lista inversamente ordenada de 10000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 6 && instanceOption == 8) {
+            arq << endl << "Método utilizado: ShellSort - Lista ordenada de 10000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 6 && instanceOption == 9) {
+            arq << endl << "Método utilizado: ShellSort - Lista aleatória de 100000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 6 && instanceOption == 10) {
+            arq << endl << "Método utilizado: ShellSort - Lista quase ordenada de 100000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 6 && instanceOption == 11) {
+            arq << endl << "Método utilizado: ShellSort - Lista inversamente ordenada de 100000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } else if(methodOption == 6 && instanceOption == 12) {
+            arq << endl << "Método utilizado: ShellSort - Lista ordenada de 100000!";
+            arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
+            arq << endl << "Comparacoes: " << comparisons;
+
+        } 
+    } 
+    arq.close();
+}
+
 // Funções que irão ordernar de fato os arquivos
 void SortFile1000(int v1[], int option, int op) {  // Função que irá ordernar os arquivos de tamanho 1.000.
+    unsigned long long comparisons = 0;
     clock_t startCount, endCount; // Variáveis que receberão a contagem do inicio e fim da ordenação.
     long double clockCount, elapsedTime; // Variáveis que receberão respectivamente o tempo de execução e a conversão para segundos.
 
@@ -435,7 +807,7 @@ void SortFile1000(int v1[], int option, int op) {  // Função que irá ordernar
 
     if(option == 1) {
         startCount = clock(); // Inicio da contagem.
-        BubbleSort(v1, tam1);        // Ordenando os números presentes no arquivo.
+        BubbleSort(v1, tam1, &comparisons);        // Ordenando os números presentes no arquivo.
         endCount = clock();   //Encerramento da contagem.
 
         clockCount = endCount - startCount; // Calculando o tempo de execução.
@@ -443,10 +815,13 @@ void SortFile1000(int v1[], int option, int op) {  // Função que irá ordernar
         
         PrintArray(v1, tam1);
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
+        cout << endl << "Comparacoes: " << comparisons << endl;
+
+        WriteFile(elapsedTime, comparisons, option, op); //Realiza a gravação no arquivo.
 
     } else if(option == 2) {
         startCount = clock(); 
-        InsertionSort(v1, tam1);        
+        InsertionSort(v1, tam1, &comparisons);        
         endCount = clock();  
 
         clockCount = endCount - startCount; 
@@ -454,10 +829,13 @@ void SortFile1000(int v1[], int option, int op) {  // Função que irá ordernar
 
         PrintArray(v1, tam1);
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
+        cout << endl << "Comparacoes: " << comparisons << endl;
+
+        WriteFile(elapsedTime, comparisons, option, op); 
 
     } else if(option == 3) {
         startCount = clock(); 
-        SelectionSort(v1, tam1);       
+        SelectionSort(v1, tam1, &comparisons);       
         endCount = clock();  
 
         clockCount = endCount - startCount;
@@ -465,10 +843,13 @@ void SortFile1000(int v1[], int option, int op) {  // Função que irá ordernar
 
         PrintArray(v1, tam1);
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
+        cout << endl << "Comparacoes: " << comparisons << endl;
+
+        WriteFile(elapsedTime, comparisons, option, op); 
 
     } else if(option == 4) {
         startCount = clock(); 
-        qsort(v1, tam1, sizeof(int), compare);       
+        QuickSort(v1,0, tam1, &comparisons);   
         endCount = clock();  
 
         clockCount = endCount - startCount;
@@ -476,10 +857,13 @@ void SortFile1000(int v1[], int option, int op) {  // Função que irá ordernar
 
         PrintArray(v1, tam1);
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
+        cout << endl << "Comparacoes: " << comparisons << endl;
+
+        WriteFile(elapsedTime, comparisons, option, op);
 
     }  else if(option == 5) {
         startCount = clock(); 
-        MergeSort(v1, 0, tam1 - 1);     
+        MergeSort(v1, 0, tam1 - 1, &comparisons);     
         endCount = clock();  
 
         clockCount = endCount - startCount;
@@ -487,10 +871,13 @@ void SortFile1000(int v1[], int option, int op) {  // Função que irá ordernar
 
         PrintArray(v1, tam1);
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
+        cout << endl << "Comparacoes: " << comparisons << endl;
+
+        WriteFile(elapsedTime, comparisons, option, op);
 
     } else if(option == 6) {
         startCount = clock(); 
-        ShellSort(v1, tam1);       
+        ShellSort(v1, tam1, &comparisons);       
         endCount = clock();  
 
         clockCount = endCount - startCount;
@@ -498,16 +885,21 @@ void SortFile1000(int v1[], int option, int op) {  // Função que irá ordernar
 
         PrintArray(v1, tam1); 
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
+        cout << endl << "Comparacoes: " << comparisons << endl;
+
+        WriteFile(elapsedTime, comparisons, option, op);
+
     }
 }
 void SortFile10000(int v2[], int option, int op) { // Função que irá ordernar os arquivos de tamanho 10.000.
+    unsigned long long comparisons = 0;
     clock_t startCount, endCount;
     long double clockCount, elapsedTime;
-
+ 
     ReadFile(v2, op, tam2);
     if(option == 1) {
         startCount = clock();
-        BubbleSort(v2, tam2);       
+        BubbleSort(v2, tam2, &comparisons);       
         endCount = clock();  
 
         clockCount = endCount - startCount; 
@@ -515,10 +907,13 @@ void SortFile10000(int v2[], int option, int op) { // Função que irá ordernar
 
         PrintArray(v2, tam2);
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
+        cout << endl << "Comparacoes: " << comparisons << endl;
+
+        WriteFile(elapsedTime, comparisons, option, op);
 
     } else if(option == 2) {
         startCount = clock(); 
-        InsertionSort(v2, tam2); 
+        InsertionSort(v2, tam2, &comparisons); 
         endCount = clock(); 
 
         clockCount = endCount - startCount; 
@@ -526,10 +921,13 @@ void SortFile10000(int v2[], int option, int op) { // Função que irá ordernar
 
         PrintArray(v2, tam2);
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
+        cout << endl << "Comparacoes: " << comparisons << endl;
+
+        WriteFile(elapsedTime, comparisons, option, op);
 
     } else if(option == 3) {
         startCount = clock(); 
-        SelectionSort(v2, tam2);      
+        SelectionSort(v2, tam2, &comparisons);      
         endCount = clock();  
 
         clockCount = endCount - startCount;
@@ -537,10 +935,13 @@ void SortFile10000(int v2[], int option, int op) { // Função que irá ordernar
 
         PrintArray(v2, tam2);
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
+        cout << endl << "Comparacoes: " << comparisons << endl;
+
+        WriteFile(elapsedTime, comparisons, option, op);
 
     } else if(option == 4) {
         startCount = clock(); 
-        qsort(v2, tam2, sizeof(int), compare);       
+        QuickSort(v2, 0, tam2, &comparisons);       
         endCount = clock();  
 
         clockCount = endCount - startCount;
@@ -548,10 +949,13 @@ void SortFile10000(int v2[], int option, int op) { // Função que irá ordernar
 
         PrintArray(v2, tam2);
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
+        cout << endl << "Comparacoes: " << comparisons << endl;
+
+        WriteFile(elapsedTime, comparisons, option, op);
 
     }  else if(option == 5) {
         startCount = clock(); 
-        MergeSort(v2, 0, tam2 - 1);        
+        MergeSort(v2, 0, tam2 - 1, &comparisons);        
         endCount = clock();  
 
         clockCount = endCount - startCount;
@@ -559,10 +963,13 @@ void SortFile10000(int v2[], int option, int op) { // Função que irá ordernar
 
         PrintArray(v2, tam2);
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
+        cout << endl << "Comparacoes: " << comparisons << endl;
+
+        WriteFile(elapsedTime, comparisons, option, op);
 
     } else if(option == 6) {
         startCount = clock(); 
-        ShellSort(v2, tam2);       
+        ShellSort(v2, tam2, &comparisons);       
         endCount = clock();  
 
         clockCount = endCount - startCount;
@@ -570,9 +977,13 @@ void SortFile10000(int v2[], int option, int op) { // Função que irá ordernar
 
         PrintArray(v2, tam2); 
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
+        cout << endl << "Comparacoes: " << comparisons << endl;
+
+        WriteFile(elapsedTime, comparisons, option, op);
     }
 }
 void SortFile100000(int v3[], int option, int op) { // Função que irá ordernar os arquivos de tamanho 100.000.
+    unsigned long long comparisons = 0;
     clock_t startCount, endCount;
     long double clockCount, elapsedTime;
 
@@ -580,7 +991,7 @@ void SortFile100000(int v3[], int option, int op) { // Função que irá orderna
 
     if(option == 1) {
         startCount = clock(); 
-        BubbleSort(v3, tam3);       
+        BubbleSort(v3, tam3, &comparisons);       
         endCount = clock(); 
 
         clockCount = endCount - startCount; 
@@ -588,10 +999,13 @@ void SortFile100000(int v3[], int option, int op) { // Função que irá orderna
 
         PrintArray(v3, tam3); 
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
+        cout << endl << "Comparacoes: " << comparisons << endl;
+
+        WriteFile(elapsedTime, comparisons, option, op);
 
     }else if(option == 2) {
         startCount = clock(); 
-        InsertionSort(v3, tam3); 
+        InsertionSort(v3, tam3, &comparisons); 
         endCount = clock(); 
 
         clockCount = endCount - startCount; 
@@ -599,10 +1013,13 @@ void SortFile100000(int v3[], int option, int op) { // Função que irá orderna
 
         PrintArray(v3, tam3);
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
+        cout << endl << "Comparacoes: " << comparisons << endl;
+
+        WriteFile(elapsedTime, comparisons, option, op);
 
     } else if(option == 3) {
         startCount = clock(); 
-        SelectionSort(v3, tam3);      
+        SelectionSort(v3, tam3, &comparisons);      
         endCount = clock();  
 
         clockCount = endCount - startCount;
@@ -610,10 +1027,13 @@ void SortFile100000(int v3[], int option, int op) { // Função que irá orderna
 
         PrintArray(v3, tam3);
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
+        cout << endl << "Comparacoes: " << comparisons << endl;
+
+        WriteFile(elapsedTime, comparisons, option, op);
 
     } else if(option == 4) {
         startCount = clock(); 
-        qsort(v3, tam3, sizeof(int), compare);       
+        QuickSort(v3, 0, tam3, &comparisons);       
         endCount = clock();  
 
         clockCount = endCount - startCount;
@@ -621,10 +1041,13 @@ void SortFile100000(int v3[], int option, int op) { // Função que irá orderna
 
         PrintArray(v3, tam3);
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
+        cout << endl << "Comparacoes: " << comparisons << endl;
+
+        WriteFile(elapsedTime, comparisons, option, op);
 
     }  else if(option == 5) {
         startCount = clock(); 
-        MergeSort(v3, 0, tam3 - 1);        
+        MergeSort(v3, 0, tam3 - 1, &comparisons);        
         endCount = clock();  
 
         clockCount = endCount - startCount;
@@ -632,10 +1055,13 @@ void SortFile100000(int v3[], int option, int op) { // Função que irá orderna
 
         PrintArray(v3, tam3);
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
+        cout << endl << "Comparacoes: " << comparisons << endl;
+
+        WriteFile(elapsedTime, comparisons, option, op);
 
     } else if(option == 6) {
         startCount = clock(); 
-        ShellSort(v3, tam3);       
+        ShellSort(v3, tam3, &comparisons);       
         endCount = clock();  
 
         clockCount = endCount - startCount;
@@ -643,6 +1069,9 @@ void SortFile100000(int v3[], int option, int op) { // Função que irá orderna
 
         PrintArray(v3, tam3); 
         cout  << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
+        cout << endl << "Comparacoes: " << comparisons << endl;
+
+        WriteFile(elapsedTime, comparisons, option, op);
     }
 }
 
@@ -685,4 +1114,5 @@ void CallUserOption(int option, int op) { //Função que vai armazenar e tratar 
         SortFile100000(v3, option, op); 
     } 
 } // Baseado na escolha do usuário, essa função entenderá qual método e instância deseja se utilizar.
+
 

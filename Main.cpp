@@ -13,7 +13,7 @@ int main() {
     SetConsoleOutputCP(CPAGE_UTF8);
 
     int optionSort;
-    int optionInstance;
+    int instanceOption;
 
     do {
         menu();
@@ -24,28 +24,28 @@ int main() {
 
         switch(optionSort) {
             case 1: 
-               optionInstance = ReadOptionInstance();
-               CallUserOption(optionSort, optionInstance);
+               instanceOption = ReadInstanceOption();
+               CallUserOption(optionSort, instanceOption);
                 break;
             case 2:
-                optionInstance = ReadOptionInstance();
-                CallUserOption(optionSort, optionInstance);
+                instanceOption = ReadInstanceOption();
+                CallUserOption(optionSort, instanceOption);
                 break;
             case 3:
-                optionInstance = ReadOptionInstance();
-                CallUserOption(optionSort, optionInstance);
+                instanceOption = ReadInstanceOption();
+                CallUserOption(optionSort, instanceOption);
                 break;
             case 4:
-                optionInstance = ReadOptionInstance();
-                CallUserOption(optionSort, optionInstance);
+                instanceOption = ReadInstanceOption();
+                CallUserOption(optionSort, instanceOption);
                 break;
             case 5:
-                optionInstance = ReadOptionInstance();
-                CallUserOption(optionSort, optionInstance);
+                instanceOption = ReadInstanceOption();
+                CallUserOption(optionSort, instanceOption);
                 break;
             case 6:
-                optionInstance = ReadOptionInstance();
-                CallUserOption(optionSort, optionInstance);
+                instanceOption = ReadInstanceOption();
+                CallUserOption(optionSort, instanceOption);
                 break;
         }
     } while (optionSort!= 7);
