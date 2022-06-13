@@ -82,18 +82,18 @@ void menu2() {
 // Métodos de Ordenação.
 void BubbleSort(int list[], int size, unsigned long long *comparisons, unsigned long long *tradeCount) {
     int aux, trade; 
-    *tradeCount = 0;
 
     for(int i = 0; i < size-1; i++) {
         trade = 0;
         for(int j = 1; j <size-i; j++) {
             if(list[j] < list[j-1]) {
+                (*comparisons)++;
                 aux = list[j];
                 list[j] = list[j-1];
                 list[j-1] = aux;
                 trade = 1;
                 (*tradeCount)++;
-                (*comparisons)++;
+                
             } else {
                 (*comparisons)++;
             }
@@ -106,17 +106,16 @@ void BubbleSort(int list[], int size, unsigned long long *comparisons, unsigned 
 
 void InsertionSort(int list[], int size, unsigned long long *comparisons, unsigned long long *tradeCount) {
     int key, j;
-    *tradeCount = 0;
 
     for (int i=1; i<size; i++) {
         key = list[i];
         j = i-1;
         (*comparisons)++;
         while(j>=0 && list[j] > key) {
+            (*comparisons)++;  
             list[j+1] = list[j];           
             j--;  
-            (*tradeCount)++;
-            (*comparisons)++;  
+            (*tradeCount)++; 
         }
         list[j+1] = key;
     }
@@ -124,14 +123,13 @@ void InsertionSort(int list[], int size, unsigned long long *comparisons, unsign
 
 void SelectionSort(int list[], int size, unsigned long long *comparisons, unsigned long long *tradeCount) {
     int min, aux;
-    *tradeCount = 1;
 
     for(int i=0; i<size-1; i++) {
         min = i;
         for(int j=i+1; j<size; j++) {
             if(list[j] < list[min]) {
-                min = j;
                 (*comparisons)++;
+                min = j;  
             } else {
                 (*comparisons)++;
             }        
@@ -147,18 +145,16 @@ void QuickSort(int list[],int left, int right, unsigned long long *comparisons, 
 
     int temp, i = left, j = right;
     int pivot = list[(left + right) / 2];
-    *tradeCount = 0;
 
     while(i <= j){
-        (*comparisons)++;
         while(list[i] < pivot){
             i++;
         }
         while(list[j] > pivot){
             j--;
         }
+        (*comparisons)++;
         if(i <= j){
-            (*comparisons)++;
             temp = list[i];
             list[i] = list[j];
             list[j] = temp;
@@ -167,64 +163,54 @@ void QuickSort(int list[],int left, int right, unsigned long long *comparisons, 
             (*tradeCount)++;
         }
     }
-    if(left < j){
+    (*comparisons)++;
+    if(left < j)
         QuickSort(list,left,j,comparisons, tradeCount);
-    }
-    if(i < right){
+    (*comparisons)++;
+    if(i < right)
         QuickSort(list,i,right,comparisons, tradeCount);
-    }
 }
 
 // Une 2 subvetores L e M dentro do vetor principal.
-void Merge(int list[], int p, int q, int r, unsigned long long *comparisons, unsigned long long *tradeCount) {
-    int n1 = q - p + 1;
-    int n2 = r - q;
-    *tradeCount = 0;
+void Merge(int List[], int left, int middle, int right, unsigned long long int *comparisons, unsigned long long *tradeCount)
+{
+    int *ListAux = (int *)malloc(sizeof(int) * (right + 1));
+    int i, j;
 
-    int L[n1], M[n2];
-
-    for (int i = 0; i < n1; i++) {
-        L[i] = list[p + i];
+    for (i = left; i <= middle; i++)
+    {
+        ListAux[i] = List[i];
     }
-        
-    for (int j = 0; j < n2; j++) {
-        M[j] = list[q + 1 + j];
-    }
-        
-    int i = 0, j = 0, k = p;
 
-    while (i < n1 && j < n2) {
-        //(*comparisons)++;
-        if (L[i] <= M[j]) {
-            (*comparisons)++;
-            list[k] = L[i];
+    for (j = middle + 1; j <= right; j++)
+    {
+        ListAux[right + middle + 1 - j] = List[j];
+    }
+
+    i = left;
+    j = right;
+
+    for (int k = left; k <= right; k++)
+    {
+        (*comparisons)++;
+        if (ListAux[i] <= ListAux[j])
+        {
+            List[k] = ListAux[i];
             i++;
             (*tradeCount)++;
-        } else {
-            (*comparisons)++;
-            list[k] = M[j];
-            j++;
+        }
+        else
+        {
+            List[k] = ListAux[j];
+            j--;
             (*tradeCount)++;
         }
-            k++;
     }
-
-    while (i < n1) {
-        list[k] = L[i];
-        i++;
-        k++;
-    }
-
-    while (j < n2) {
-        list[k] = M[j];
-        j++;
-        k++;
-    }
+    free(ListAux);
 }
 
 // Divide o vetor em 2 subvetores ordenam os 2 e depois os une.
 void MergeSort(int list[], int left, int right, unsigned long long *comparisons, unsigned long long *tradeCount) {
-    *tradeCount = 0;
     if (left < right) {
         int middle = left + (right - left) / 2;
 
@@ -241,14 +227,15 @@ void ShellSort(int list[], int size, unsigned long long *comparisons, unsigned l
     for(h=1; h<size; h=3*h+1);
     while(h>1) {
         h = h/3;
+        (*comparisons)++;
         for(i=h; i<size; i++) {
             x = list[i];
             j = i;
             while(j>=h && list[j-h] > x) {
-                list[j] = list[j-h];
-                (*tradeCount)++;
-                j = j - h;
                 (*comparisons)++;
+                list[j] = list[j-h];
+                j = j - h;
+                (*tradeCount)++;
             }
             list[j] = x;
             (*comparisons)++;
@@ -886,17 +873,17 @@ void WriteFile(long double elapsedTime, unsigned long long comparisons, unsigned
 // Funções que irão ordernar de fato os arquivos
 void SortFile1000(int v1[], int option, int op) {  // Função que irá ordernar os arquivos de tamanho 1.000.
     unsigned long long comparisons = 0, tradeCount = 0;
-    clock_t startCount, endCount; // Variáveis que receberão a contagem do inicio e fim da ordenação.
+    clock_t leftCount, endCount; // Variáveis que receberão a contagem do inicio e fim da ordenação.
     long double clockCount, elapsedTime; // Variáveis que receberão respectivamente o tempo de execução e a conversão para segundos.
 
     ReadFile(v1, op, tam1); // Chamada da função que lê o arquivo;
 
     if(option == 1) {
-        startCount = clock(); // Inicio da contagem.
+        leftCount = clock(); // Inicio da contagem.
         BubbleSort(v1, tam1, &comparisons, &tradeCount);        // Ordenando os números presentes no arquivo.
         endCount = clock();   //Encerramento da contagem.
 
-        clockCount = endCount - startCount; // Calculando o tempo de execução.
+        clockCount = endCount - leftCount; // Calculando o tempo de execução.
         elapsedTime = clockCount / CLOCKS_PER_SEC; // Faz a conversão para segundos.
         
         PrintArray(v1, tam1);
@@ -907,11 +894,11 @@ void SortFile1000(int v1[], int option, int op) {  // Função que irá ordernar
         WriteFile(elapsedTime, comparisons, tradeCount, option, op); //Realiza a gravação no arquivo.
 
     } else if(option == 2) {
-        startCount = clock(); 
+        leftCount = clock(); 
         InsertionSort(v1, tam1, &comparisons, &tradeCount);        
         endCount = clock();  
 
-        clockCount = endCount - startCount; 
+        clockCount = endCount - leftCount; 
         elapsedTime = clockCount / CLOCKS_PER_SEC; 
 
         PrintArray(v1, tam1);
@@ -922,11 +909,11 @@ void SortFile1000(int v1[], int option, int op) {  // Função que irá ordernar
         WriteFile(elapsedTime, comparisons, tradeCount, option, op); 
 
     } else if(option == 3) {
-        startCount = clock(); 
+        leftCount = clock(); 
         SelectionSort(v1, tam1, &comparisons, &tradeCount);       
         endCount = clock();  
 
-        clockCount = endCount - startCount;
+        clockCount = endCount - leftCount;
         elapsedTime = clockCount / CLOCKS_PER_SEC; 
 
         PrintArray(v1, tam1);
@@ -937,11 +924,11 @@ void SortFile1000(int v1[], int option, int op) {  // Função que irá ordernar
         WriteFile(elapsedTime, comparisons, tradeCount, option, op); 
 
     } else if(option == 4) {
-        startCount = clock(); 
-        QuickSort(v1,0, tam1, &comparisons, &tradeCount);   
+        leftCount = clock(); 
+        QuickSort(v1, 0, tam1 - 1, &comparisons, &tradeCount);   
         endCount = clock();  
 
-        clockCount = endCount - startCount;
+        clockCount = endCount - leftCount;
         elapsedTime = clockCount / CLOCKS_PER_SEC; 
 
         PrintArray(v1, tam1);
@@ -952,11 +939,11 @@ void SortFile1000(int v1[], int option, int op) {  // Função que irá ordernar
         WriteFile(elapsedTime, comparisons, tradeCount, option, op);
 
     }  else if(option == 5) {
-        startCount = clock(); 
+        leftCount = clock(); 
         MergeSort(v1, 0, tam1 - 1, &comparisons, &tradeCount);     
         endCount = clock();  
 
-        clockCount = endCount - startCount;
+        clockCount = endCount - leftCount;
         elapsedTime = clockCount / CLOCKS_PER_SEC; 
 
         PrintArray(v1, tam1);
@@ -967,11 +954,11 @@ void SortFile1000(int v1[], int option, int op) {  // Função que irá ordernar
         WriteFile(elapsedTime, comparisons, tradeCount, option, op);
 
     } else if(option == 6) {
-        startCount = clock(); 
+        leftCount = clock(); 
         ShellSort(v1, tam1, &comparisons, &tradeCount);       
         endCount = clock();  
 
-        clockCount = endCount - startCount;
+        clockCount = endCount - leftCount;
         elapsedTime = clockCount / CLOCKS_PER_SEC; 
 
         PrintArray(v1, tam1); 
@@ -985,16 +972,16 @@ void SortFile1000(int v1[], int option, int op) {  // Função que irá ordernar
 }
 void SortFile10000(int v2[], int option, int op) { // Função que irá ordernar os arquivos de tamanho 10.000.
     unsigned long long comparisons = 0, tradeCount = 0;
-    clock_t startCount, endCount;
+    clock_t leftCount, endCount;
     long double clockCount, elapsedTime;
  
     ReadFile(v2, op, tam2);
     if(option == 1) {
-        startCount = clock();
+        leftCount = clock();
         BubbleSort(v2, tam2, &comparisons, &tradeCount);       
         endCount = clock();  
 
-        clockCount = endCount - startCount; 
+        clockCount = endCount - leftCount; 
         elapsedTime = clockCount / CLOCKS_PER_SEC;
 
         PrintArray(v2, tam2);
@@ -1005,11 +992,11 @@ void SortFile10000(int v2[], int option, int op) { // Função que irá ordernar
         WriteFile(elapsedTime, comparisons, tradeCount, option, op);
 
     } else if(option == 2) {
-        startCount = clock(); 
+        leftCount = clock(); 
         InsertionSort(v2, tam2, &comparisons, &tradeCount); 
         endCount = clock(); 
 
-        clockCount = endCount - startCount; 
+        clockCount = endCount - leftCount; 
         elapsedTime = clockCount / CLOCKS_PER_SEC; 
 
         PrintArray(v2, tam2);
@@ -1020,11 +1007,11 @@ void SortFile10000(int v2[], int option, int op) { // Função que irá ordernar
         WriteFile(elapsedTime, comparisons, tradeCount, option, op);
 
     } else if(option == 3) {
-        startCount = clock(); 
+        leftCount = clock(); 
         SelectionSort(v2, tam2, &comparisons, &tradeCount);      
         endCount = clock();  
 
-        clockCount = endCount - startCount;
+        clockCount = endCount - leftCount;
         elapsedTime = clockCount / CLOCKS_PER_SEC;
 
         PrintArray(v2, tam2);
@@ -1035,11 +1022,11 @@ void SortFile10000(int v2[], int option, int op) { // Função que irá ordernar
         WriteFile(elapsedTime, comparisons, tradeCount, option, op);
 
     } else if(option == 4) {
-        startCount = clock(); 
-        QuickSort(v2, 0, tam2, &comparisons, &tradeCount);       
+        leftCount = clock(); 
+        QuickSort(v2, 0, tam2 - 1, &comparisons, &tradeCount);       
         endCount = clock();  
 
-        clockCount = endCount - startCount;
+        clockCount = endCount - leftCount;
         elapsedTime = clockCount / CLOCKS_PER_SEC; 
 
         PrintArray(v2, tam2);
@@ -1050,11 +1037,11 @@ void SortFile10000(int v2[], int option, int op) { // Função que irá ordernar
         WriteFile(elapsedTime, comparisons, tradeCount, option, op);
 
     }  else if(option == 5) {
-        startCount = clock(); 
+        leftCount = clock(); 
         MergeSort(v2, 0, tam2 - 1, &comparisons, &tradeCount);        
         endCount = clock();  
 
-        clockCount = endCount - startCount;
+        clockCount = endCount - leftCount;
         elapsedTime = clockCount / CLOCKS_PER_SEC; 
 
         PrintArray(v2, tam2);
@@ -1065,11 +1052,11 @@ void SortFile10000(int v2[], int option, int op) { // Função que irá ordernar
         WriteFile(elapsedTime, comparisons, tradeCount, option, op);
 
     } else if(option == 6) {
-        startCount = clock(); 
+        leftCount = clock(); 
         ShellSort(v2, tam2, &comparisons, &tradeCount);       
         endCount = clock();  
 
-        clockCount = endCount - startCount;
+        clockCount = endCount - leftCount;
         elapsedTime = clockCount / CLOCKS_PER_SEC; 
 
         PrintArray(v2, tam2); 
@@ -1082,17 +1069,17 @@ void SortFile10000(int v2[], int option, int op) { // Função que irá ordernar
 }
 void SortFile100000(int v3[], int option, int op) { // Função que irá ordernar os arquivos de tamanho 100.000.
     unsigned long long comparisons = 0, tradeCount = 0;
-    clock_t startCount, endCount;
+    clock_t leftCount, endCount;
     long double clockCount, elapsedTime;
 
     ReadFile(v3, op, tam3);
 
     if(option == 1) {
-        startCount = clock(); 
+        leftCount = clock(); 
         BubbleSort(v3, tam3, &comparisons, &tradeCount);       
         endCount = clock(); 
 
-        clockCount = endCount - startCount; 
+        clockCount = endCount - leftCount; 
         elapsedTime = clockCount / CLOCKS_PER_SEC; 
 
         PrintArray(v3, tam3); 
@@ -1103,11 +1090,11 @@ void SortFile100000(int v3[], int option, int op) { // Função que irá orderna
         WriteFile(elapsedTime, comparisons, tradeCount, option, op);
 
     }else if(option == 2) {
-        startCount = clock(); 
+        leftCount = clock(); 
         InsertionSort(v3, tam3, &comparisons, &tradeCount); 
         endCount = clock(); 
 
-        clockCount = endCount - startCount; 
+        clockCount = endCount - leftCount; 
         elapsedTime = clockCount / CLOCKS_PER_SEC; 
 
         PrintArray(v3, tam3);
@@ -1118,11 +1105,11 @@ void SortFile100000(int v3[], int option, int op) { // Função que irá orderna
         WriteFile(elapsedTime, comparisons, tradeCount, option, op);
 
     } else if(option == 3) {
-        startCount = clock(); 
+        leftCount = clock(); 
         SelectionSort(v3, tam3, &comparisons, &tradeCount);      
         endCount = clock();  
 
-        clockCount = endCount - startCount;
+        clockCount = endCount - leftCount;
         elapsedTime = clockCount / CLOCKS_PER_SEC;
 
         PrintArray(v3, tam3);
@@ -1133,25 +1120,26 @@ void SortFile100000(int v3[], int option, int op) { // Função que irá orderna
         WriteFile(elapsedTime, comparisons, tradeCount, option, op);
 
     } else if(option == 4) {
-        startCount = clock(); 
-        QuickSort(v3, 0, tam3, &comparisons, &tradeCount);       
+        leftCount = clock(); 
+        QuickSort(v3, 0, tam3 - 1, &comparisons, &tradeCount);       
         endCount = clock();  
 
-        clockCount = endCount - startCount;
+        clockCount = endCount - leftCount;
         elapsedTime = clockCount / CLOCKS_PER_SEC; 
 
         PrintArray(v3, tam3);
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
         cout << endl << "Comparacoes: " << comparisons << endl;
+        cout << endl << "Número de trocas: " << tradeCount << endl;
 
         WriteFile(elapsedTime, comparisons, tradeCount, option, op);
 
     }  else if(option == 5) {
-        startCount = clock(); 
+        leftCount = clock(); 
         MergeSort(v3, 0, tam3 - 1, &comparisons, &tradeCount);        
         endCount = clock();  
 
-        clockCount = endCount - startCount;
+        clockCount = endCount - leftCount;
         elapsedTime = clockCount / CLOCKS_PER_SEC; 
 
         PrintArray(v3, tam3);
@@ -1162,11 +1150,11 @@ void SortFile100000(int v3[], int option, int op) { // Função que irá orderna
         WriteFile(elapsedTime, comparisons, tradeCount, option, op);
 
     } else if(option == 6) {
-        startCount = clock(); 
+        leftCount = clock(); 
         ShellSort(v3, tam3, &comparisons, &tradeCount);       
         endCount = clock();  
 
-        clockCount = endCount - startCount;
+        clockCount = endCount - leftCount;
         elapsedTime = clockCount / CLOCKS_PER_SEC; 
 
         PrintArray(v3, tam3); 
