@@ -6,7 +6,7 @@ void menu(); // Menú onde poderá ser escolhido o método de ordenação deseja
 void menu2(); // Menú onde poderá ser escolhida a lista a ser ordenada.
 
 //Métodos de Ordenação
-int BubbleSort(int list[], int size, unsigned long long *comparisons);
+void BubbleSort(int list[], int size, unsigned long long *comparisons);
 void InsertionSort(int list[], int size, unsigned long long *comparisons);
 void SelectionSort(int list[], int size, unsigned long long *comparisons);
 void ShellSort(int list[], int size, unsigned long long *comparisons);

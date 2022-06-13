@@ -80,8 +80,9 @@ void menu2() {
 }
 
 // Métodos de Ordenação.
-int BubbleSort(int list[], int size, unsigned long long *comparisons) {
-    int aux, trade, tradeCount = 0;
+void BubbleSort(int list[], int size, unsigned long long *comparisons, unsigned long long *tradeCount) {
+    int aux, trade; 
+    *tradeCount = 0;
 
     for(int i = 0; i < size-1; i++) {
         trade = 0;
@@ -91,7 +92,7 @@ int BubbleSort(int list[], int size, unsigned long long *comparisons) {
                 list[j] = list[j-1];
                 list[j-1] = aux;
                 trade = 1;
-                tradeCount++;
+                (*tradeCount)++;
                 (*comparisons)++;
             } else {
                 (*comparisons)++;
@@ -101,11 +102,11 @@ int BubbleSort(int list[], int size, unsigned long long *comparisons) {
             break;
         }
     }
-    return tradeCount;
 }
 
-void InsertionSort(int list[], int size, unsigned long long *comparisons) {
+void InsertionSort(int list[], int size, unsigned long long *comparisons, unsigned long long *tradeCount) {
     int key, j;
+    *tradeCount = 0;
 
     for (int i=1; i<size; i++) {
         key = list[i];
@@ -114,14 +115,16 @@ void InsertionSort(int list[], int size, unsigned long long *comparisons) {
         while(j>=0 && list[j] > key) {
             list[j+1] = list[j];           
             j--;  
+            (*tradeCount)++;
             (*comparisons)++;  
         }
         list[j+1] = key;
     }
 }
 
-void SelectionSort(int list[], int size, unsigned long long *comparisons) {
+void SelectionSort(int list[], int size, unsigned long long *comparisons, unsigned long long *tradeCount) {
     int min, aux;
+    *tradeCount = 1;
 
     for(int i=0; i<size-1; i++) {
         min = i;
@@ -136,43 +139,47 @@ void SelectionSort(int list[], int size, unsigned long long *comparisons) {
         aux = list[i];
         list[i] = list[min];
         list[min] = aux;
+        (*tradeCount)++;
     }
 }
 
-void QuickSort(int list[],int left, int right, unsigned long long *comparisons) {
+void QuickSort(int list[],int left, int right, unsigned long long *comparisons, unsigned long long *tradeCount) {
 
     int temp, i = left, j = right;
     int pivot = list[(left + right) / 2];
+    *tradeCount = 0;
 
     while(i <= j){
+        (*comparisons)++;
         while(list[i] < pivot){
             i++;
         }
         while(list[j] > pivot){
             j--;
         }
-        (*comparisons)++;
         if(i <= j){
+            (*comparisons)++;
             temp = list[i];
             list[i] = list[j];
             list[j] = temp;
             i++;
             j--;
+            (*tradeCount)++;
         }
     }
-    (*comparisons)++;
     if(left < j){
-        QuickSort(list,left,j,comparisons);
+        QuickSort(list,left,j,comparisons, tradeCount);
     }
     if(i < right){
-        QuickSort(list,i,right,comparisons);
+        QuickSort(list,i,right,comparisons, tradeCount);
     }
 }
 
 // Une 2 subvetores L e M dentro do vetor principal.
-void Merge(int list[], int p, int q, int r, unsigned long long *comparisons) {
+void Merge(int list[], int p, int q, int r, unsigned long long *comparisons, unsigned long long *tradeCount) {
     int n1 = q - p + 1;
     int n2 = r - q;
+    *tradeCount = 0;
 
     int L[n1], M[n2];
 
@@ -187,13 +194,17 @@ void Merge(int list[], int p, int q, int r, unsigned long long *comparisons) {
     int i = 0, j = 0, k = p;
 
     while (i < n1 && j < n2) {
-        (*comparisons)++;
+        //(*comparisons)++;
         if (L[i] <= M[j]) {
+            (*comparisons)++;
             list[k] = L[i];
             i++;
+            (*tradeCount)++;
         } else {
+            (*comparisons)++;
             list[k] = M[j];
             j++;
+            (*tradeCount)++;
         }
             k++;
     }
@@ -212,17 +223,19 @@ void Merge(int list[], int p, int q, int r, unsigned long long *comparisons) {
 }
 
 // Divide o vetor em 2 subvetores ordenam os 2 e depois os une.
-void MergeSort(int list[], int left, int right, unsigned long long *comparisons) {
+void MergeSort(int list[], int left, int right, unsigned long long *comparisons, unsigned long long *tradeCount) {
+    *tradeCount = 0;
     if (left < right) {
         int middle = left + (right - left) / 2;
 
-        MergeSort(list, left, middle, comparisons);
-        MergeSort(list, middle + 1, right, comparisons);
-        Merge(list, left, middle, right, comparisons);
+        MergeSort(list, left, middle, comparisons, tradeCount);
+        MergeSort(list, middle + 1, right, comparisons, tradeCount);
+        Merge(list, left, middle, right, comparisons, tradeCount);
+        (*comparisons)++;
     }
 }
 
-void ShellSort(int list[], int size, unsigned long long *comparisons) {
+void ShellSort(int list[], int size, unsigned long long *comparisons, unsigned long long *tradeCount) {
     int h, x, i, j;
 
     for(h=1; h<size; h=3*h+1);
@@ -233,6 +246,7 @@ void ShellSort(int list[], int size, unsigned long long *comparisons) {
             j = i;
             while(j>=h && list[j-h] > x) {
                 list[j] = list[j-h];
+                (*tradeCount)++;
                 j = j - h;
                 (*comparisons)++;
             }
@@ -428,7 +442,7 @@ void PrintArray(int v[], int size) {
 }
 
 //Função que irá gravar os dados das análises no arquivo
-void WriteFile(long double elapsedTime, unsigned long long comparisons, int methodOption, int instanceOption) { 
+void WriteFile(long double elapsedTime, unsigned long long comparisons, unsigned long long tradeCount, int methodOption, int instanceOption) { 
     ofstream arq("Analises.txt", ios::app);
 
     if(!arq.fail()) {
@@ -436,361 +450,433 @@ void WriteFile(long double elapsedTime, unsigned long long comparisons, int meth
             arq << "Método utilizado: BubbleSort - Lista aleatória de 1000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 1 && instanceOption == 2) {
             arq << endl << "Método utilizado: BubbleSort - Lista quase ordenada de 1000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 1 && instanceOption == 3) {
             arq << endl << "Método utilizado: BubbleSort - Lista inversamente ordenada de 1000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 1 && instanceOption == 4) {
             arq << endl << "Método utilizado: BubbleSort - Lista ordenada de 1000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 1 && instanceOption == 5) {
             arq << endl << "Método utilizado: Insertion - Lista aleatória de 10000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 1 && instanceOption == 6) {
             arq << endl << "Método utilizado: BubbleSort - Lista quase ordenada de 10000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 1 && instanceOption == 7) {
             arq << endl << "Método utilizado: BubbleSort - Lista inversamente ordenada de 10000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 1 && instanceOption == 8) {
             arq << endl << "Método utilizado: BubbleSort - Lista ordenada de 10000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 1 && instanceOption == 9) {
             arq << endl << "Método utilizado: BubbleSort - Lista aleatória de 100000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 1 && instanceOption == 10) {
             arq << endl << "Método utilizado: BubbleSort - Lista quase ordenada de 100000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 1 && instanceOption == 11) {
             arq << endl << "Método utilizado: BubbleSort - Lista inversamente ordenada de 100000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 1 && instanceOption == 12) {
             arq << endl << "Método utilizado: BubbleSort - Lista ordenada de 100000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 2 && instanceOption == 1) {
             arq << endl << "Método utilizado: InsertionSort - Lista aleatória de 1000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 2 && instanceOption == 2) {
             arq << endl << "Método utilizado: InsertionSort - Lista quase ordenada de 1000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 2 && instanceOption == 3) {
             arq << endl << "Método utilizado: InsertionSort - Lista inversamente ordenada de 1000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 2 && instanceOption == 4) {
             arq << endl << "Método utilizado: InsertionSort - Lista ordenada de 1000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 2 && instanceOption == 5) {
             arq << endl << "Método utilizado: InsertionSort - Lista aleatória de 10000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 2 && instanceOption == 6) {
             arq << endl << "Método utilizado: InsertionSort - Lista quase ordenada de 10000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 2 && instanceOption == 7) {
             arq << endl << "Método utilizado: InsertionSort - Lista inversamente ordenada de 10000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 2 && instanceOption == 8) {
             arq << endl << "Método utilizado: InsertionSort - Lista ordenada de 10000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 2 && instanceOption == 9) {
             arq << endl << "Método utilizado: InsertionSort - Lista aleatória de 100000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 2 && instanceOption == 10) {
             arq << endl << "Método utilizado: InsertionSort - Lista quase ordenada de 100000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 2 && instanceOption == 11) {
             arq << endl << "Método utilizado: InsertionSort - Lista inversamente ordenada de 100000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 2 && instanceOption == 12) {
             arq << endl << "Método utilizado: InsertionSort - Lista ordenada de 100000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 3 && instanceOption == 1) {
             arq << endl << "Método utilizado: SelectionSort - Lista aleatória de 1000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 3 && instanceOption == 2) {
             arq << endl << "Método utilizado: SelectionSort - Lista quase ordenada de 1000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 3 && instanceOption == 3) {
             arq << endl << "Método utilizado: SelectionSort - Lista inversamente ordenada de 1000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 3 && instanceOption == 4) {
             arq << endl << "Método utilizado: SelectionSort - Lista ordenada de 1000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 3 && instanceOption == 5) {
             arq << "Método utilizado: SelectionSort - Lista aleatória de 10000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 3 && instanceOption == 6) {
             arq << endl << "Método utilizado: SelectionSort - Lista quase ordenada de 10000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 3 && instanceOption == 7) {
             arq << endl << "Método utilizado: SelectionSort - Lista inversamente ordenada de 10000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 3 && instanceOption == 8) {
             arq << endl << "Método utilizado: SelectionSort - Lista ordenada de 10000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 3 && instanceOption == 9) {
             arq << endl << "Método utilizado: SelectionSort - Lista aleatória de 100000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 3 && instanceOption == 10) {
             arq << endl << "Método utilizado: SelectionSort - Lista quase ordenada de 100000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 3 && instanceOption == 11) {
             arq << endl << "Método utilizado: SelectionSort - Lista inversamente ordenada de 100000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 3 && instanceOption == 12) {
             arq << endl << "Método utilizado: SelectionSort - Lista ordenada de 100000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 4 && instanceOption == 1) {
             arq << endl << "Método utilizado: QuickSort - Lista aleatória de 1000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 4 && instanceOption == 2) {
             arq << endl << "Método utilizado: QuickSort - Lista quase ordenada de 1000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 4 && instanceOption == 3) {
             arq << endl << "Método utilizado: QuickSort - Lista inversamente ordenada de 1000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 4 && instanceOption == 4) {
             arq << endl << "Método utilizado: QuickSort - Lista ordenada de 1000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 4 && instanceOption == 5) {
             arq << endl << "Método utilizado: QuickSort - Lista aleatória de 10000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 4 && instanceOption == 6) {
             arq << endl << "Método utilizado: QuickSort - Lista quase ordenada de 10000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 4 && instanceOption == 7) {
             arq << endl << "Método utilizado: QuickSort - Lista inversamente ordenada de 10000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 4 && instanceOption == 8) {
             arq << endl << "Método utilizado: QuickSort - Lista ordenada de 10000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 4 && instanceOption == 9) {
             arq << endl << "Método utilizado: QuickSort - Lista aleatória de 100000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 4 && instanceOption == 10) {
             arq << endl << "Método utilizado: QuickSort - Lista quase ordenada de 100000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 4 && instanceOption == 11) {
             arq << endl << "Método utilizado: QuickSort - Lista inversamente ordenada de 100000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 4 && instanceOption == 12) {
             arq << endl << "Método utilizado: QuickSort - Lista ordenada de 100000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 5 && instanceOption == 1) {
             arq << endl << "Método utilizado: MergeSort - Lista aleatória de 1000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 5 && instanceOption == 2) {
             arq << endl << "Método utilizado: MergeSort - Lista quase ordenada de 1000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 5 && instanceOption == 3) {
             arq << endl << "Método utilizado: MergeSort - Lista inversamente ordenada de 1000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 5 && instanceOption == 4) {
             arq << endl << "Método utilizado: MergeSort - Lista ordenada de 1000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 5 && instanceOption == 5) {
             arq << "Método utilizado: MergeSort - Lista aleatória de 10000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 5 && instanceOption == 6) {
             arq << endl << "Método utilizado: MergeSort - Lista quase ordenada de 10000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 5 && instanceOption == 7) {
             arq << endl << "Método utilizado: MergeSort - Lista inversamente ordenada de 10000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 5 && instanceOption == 8) {
             arq << endl << "Método utilizado: MergeSort - Lista ordenada de 10000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 5 && instanceOption == 9) {
             arq << endl << "Método utilizado: MergeSort - Lista aleatória de 100000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 5 && instanceOption == 10) {
             arq << endl << "Método utilizado: MergeSort - Lista quase ordenada de 100000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 5 && instanceOption == 11) {
             arq << endl << "Método utilizado: MergeSort - Lista inversamente ordenada de 100000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 5 && instanceOption == 12) {
             arq << endl << "Método utilizado: MergeSort - Lista ordenada de 100000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 6 && instanceOption == 1) {
             arq << endl << "Método utilizado: ShellSort - Lista aleatória de 1000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 6 && instanceOption == 2) {
             arq << endl << "Método utilizado: ShellSort - Lista quase ordenada de 1000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 6 && instanceOption == 3) {
             arq << endl << "Método utilizado: ShellSort - Lista inversamente ordenada de 1000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 6 && instanceOption == 4) {
             arq << endl << "Método utilizado: ShellSort - Lista ordenada de 1000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 6 && instanceOption == 5) {
             arq << endl << "Método utilizado: ShellSort - Lista aleatória de 10000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 6 && instanceOption == 6) {
             arq << endl << "Método utilizado: ShellSort - Lista quase ordenada de 10000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 6 && instanceOption == 7) {
             arq << endl << "Método utilizado: ShellSort - Lista inversamente ordenada de 10000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 6 && instanceOption == 8) {
             arq << endl << "Método utilizado: ShellSort - Lista ordenada de 10000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 6 && instanceOption == 9) {
             arq << endl << "Método utilizado: ShellSort - Lista aleatória de 100000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 6 && instanceOption == 10) {
             arq << endl << "Método utilizado: ShellSort - Lista quase ordenada de 100000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 6 && instanceOption == 11) {
             arq << endl << "Método utilizado: ShellSort - Lista inversamente ordenada de 100000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } else if(methodOption == 6 && instanceOption == 12) {
             arq << endl << "Método utilizado: ShellSort - Lista ordenada de 100000!";
             arq << endl << "Tempo decorrido: " << elapsedTime << " segundos.";
             arq << endl << "Comparacoes: " << comparisons;
+            arq << endl << "Número de trocas: " << tradeCount << endl << endl;
 
         } 
     } 
@@ -799,7 +885,7 @@ void WriteFile(long double elapsedTime, unsigned long long comparisons, int meth
 
 // Funções que irão ordernar de fato os arquivos
 void SortFile1000(int v1[], int option, int op) {  // Função que irá ordernar os arquivos de tamanho 1.000.
-    unsigned long long comparisons = 0;
+    unsigned long long comparisons = 0, tradeCount = 0;
     clock_t startCount, endCount; // Variáveis que receberão a contagem do inicio e fim da ordenação.
     long double clockCount, elapsedTime; // Variáveis que receberão respectivamente o tempo de execução e a conversão para segundos.
 
@@ -807,7 +893,7 @@ void SortFile1000(int v1[], int option, int op) {  // Função que irá ordernar
 
     if(option == 1) {
         startCount = clock(); // Inicio da contagem.
-        BubbleSort(v1, tam1, &comparisons);        // Ordenando os números presentes no arquivo.
+        BubbleSort(v1, tam1, &comparisons, &tradeCount);        // Ordenando os números presentes no arquivo.
         endCount = clock();   //Encerramento da contagem.
 
         clockCount = endCount - startCount; // Calculando o tempo de execução.
@@ -816,12 +902,13 @@ void SortFile1000(int v1[], int option, int op) {  // Função que irá ordernar
         PrintArray(v1, tam1);
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
         cout << endl << "Comparacoes: " << comparisons << endl;
+        cout << endl << "Número de trocas: " << tradeCount << endl;
 
-        WriteFile(elapsedTime, comparisons, option, op); //Realiza a gravação no arquivo.
+        WriteFile(elapsedTime, comparisons, tradeCount, option, op); //Realiza a gravação no arquivo.
 
     } else if(option == 2) {
         startCount = clock(); 
-        InsertionSort(v1, tam1, &comparisons);        
+        InsertionSort(v1, tam1, &comparisons, &tradeCount);        
         endCount = clock();  
 
         clockCount = endCount - startCount; 
@@ -830,12 +917,13 @@ void SortFile1000(int v1[], int option, int op) {  // Função que irá ordernar
         PrintArray(v1, tam1);
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
         cout << endl << "Comparacoes: " << comparisons << endl;
+        cout << endl << "Número de trocas: " << tradeCount << endl;
 
-        WriteFile(elapsedTime, comparisons, option, op); 
+        WriteFile(elapsedTime, comparisons, tradeCount, option, op); 
 
     } else if(option == 3) {
         startCount = clock(); 
-        SelectionSort(v1, tam1, &comparisons);       
+        SelectionSort(v1, tam1, &comparisons, &tradeCount);       
         endCount = clock();  
 
         clockCount = endCount - startCount;
@@ -844,12 +932,13 @@ void SortFile1000(int v1[], int option, int op) {  // Função que irá ordernar
         PrintArray(v1, tam1);
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
         cout << endl << "Comparacoes: " << comparisons << endl;
+        cout << endl << "Número de trocas: " << tradeCount << endl;
 
-        WriteFile(elapsedTime, comparisons, option, op); 
+        WriteFile(elapsedTime, comparisons, tradeCount, option, op); 
 
     } else if(option == 4) {
         startCount = clock(); 
-        QuickSort(v1,0, tam1, &comparisons);   
+        QuickSort(v1,0, tam1, &comparisons, &tradeCount);   
         endCount = clock();  
 
         clockCount = endCount - startCount;
@@ -858,12 +947,13 @@ void SortFile1000(int v1[], int option, int op) {  // Função que irá ordernar
         PrintArray(v1, tam1);
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
         cout << endl << "Comparacoes: " << comparisons << endl;
+        cout << endl << "Número de trocas: " << tradeCount << endl;
 
-        WriteFile(elapsedTime, comparisons, option, op);
+        WriteFile(elapsedTime, comparisons, tradeCount, option, op);
 
     }  else if(option == 5) {
         startCount = clock(); 
-        MergeSort(v1, 0, tam1 - 1, &comparisons);     
+        MergeSort(v1, 0, tam1 - 1, &comparisons, &tradeCount);     
         endCount = clock();  
 
         clockCount = endCount - startCount;
@@ -872,12 +962,13 @@ void SortFile1000(int v1[], int option, int op) {  // Função que irá ordernar
         PrintArray(v1, tam1);
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
         cout << endl << "Comparacoes: " << comparisons << endl;
+        cout << endl << "Número de trocas: " << tradeCount << endl;
 
-        WriteFile(elapsedTime, comparisons, option, op);
+        WriteFile(elapsedTime, comparisons, tradeCount, option, op);
 
     } else if(option == 6) {
         startCount = clock(); 
-        ShellSort(v1, tam1, &comparisons);       
+        ShellSort(v1, tam1, &comparisons, &tradeCount);       
         endCount = clock();  
 
         clockCount = endCount - startCount;
@@ -886,20 +977,21 @@ void SortFile1000(int v1[], int option, int op) {  // Função que irá ordernar
         PrintArray(v1, tam1); 
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
         cout << endl << "Comparacoes: " << comparisons << endl;
+        cout << endl << "Número de trocas: " << tradeCount << endl;
 
-        WriteFile(elapsedTime, comparisons, option, op);
+        WriteFile(elapsedTime, comparisons, tradeCount, option, op);
 
     }
 }
 void SortFile10000(int v2[], int option, int op) { // Função que irá ordernar os arquivos de tamanho 10.000.
-    unsigned long long comparisons = 0;
+    unsigned long long comparisons = 0, tradeCount = 0;
     clock_t startCount, endCount;
     long double clockCount, elapsedTime;
  
     ReadFile(v2, op, tam2);
     if(option == 1) {
         startCount = clock();
-        BubbleSort(v2, tam2, &comparisons);       
+        BubbleSort(v2, tam2, &comparisons, &tradeCount);       
         endCount = clock();  
 
         clockCount = endCount - startCount; 
@@ -908,12 +1000,13 @@ void SortFile10000(int v2[], int option, int op) { // Função que irá ordernar
         PrintArray(v2, tam2);
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
         cout << endl << "Comparacoes: " << comparisons << endl;
+        cout << endl << "Número de trocas:" << tradeCount << endl;
 
-        WriteFile(elapsedTime, comparisons, option, op);
+        WriteFile(elapsedTime, comparisons, tradeCount, option, op);
 
     } else if(option == 2) {
         startCount = clock(); 
-        InsertionSort(v2, tam2, &comparisons); 
+        InsertionSort(v2, tam2, &comparisons, &tradeCount); 
         endCount = clock(); 
 
         clockCount = endCount - startCount; 
@@ -922,12 +1015,13 @@ void SortFile10000(int v2[], int option, int op) { // Função que irá ordernar
         PrintArray(v2, tam2);
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
         cout << endl << "Comparacoes: " << comparisons << endl;
+        cout << endl << "Número de trocas: " << tradeCount << endl;
 
-        WriteFile(elapsedTime, comparisons, option, op);
+        WriteFile(elapsedTime, comparisons, tradeCount, option, op);
 
     } else if(option == 3) {
         startCount = clock(); 
-        SelectionSort(v2, tam2, &comparisons);      
+        SelectionSort(v2, tam2, &comparisons, &tradeCount);      
         endCount = clock();  
 
         clockCount = endCount - startCount;
@@ -936,12 +1030,13 @@ void SortFile10000(int v2[], int option, int op) { // Função que irá ordernar
         PrintArray(v2, tam2);
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
         cout << endl << "Comparacoes: " << comparisons << endl;
+        cout << endl << "Número de trocas: " << tradeCount << endl;
 
-        WriteFile(elapsedTime, comparisons, option, op);
+        WriteFile(elapsedTime, comparisons, tradeCount, option, op);
 
     } else if(option == 4) {
         startCount = clock(); 
-        QuickSort(v2, 0, tam2, &comparisons);       
+        QuickSort(v2, 0, tam2, &comparisons, &tradeCount);       
         endCount = clock();  
 
         clockCount = endCount - startCount;
@@ -950,12 +1045,13 @@ void SortFile10000(int v2[], int option, int op) { // Função que irá ordernar
         PrintArray(v2, tam2);
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
         cout << endl << "Comparacoes: " << comparisons << endl;
+        cout << endl << "Número de trocas: " << tradeCount << endl;
 
-        WriteFile(elapsedTime, comparisons, option, op);
+        WriteFile(elapsedTime, comparisons, tradeCount, option, op);
 
     }  else if(option == 5) {
         startCount = clock(); 
-        MergeSort(v2, 0, tam2 - 1, &comparisons);        
+        MergeSort(v2, 0, tam2 - 1, &comparisons, &tradeCount);        
         endCount = clock();  
 
         clockCount = endCount - startCount;
@@ -964,12 +1060,13 @@ void SortFile10000(int v2[], int option, int op) { // Função que irá ordernar
         PrintArray(v2, tam2);
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
         cout << endl << "Comparacoes: " << comparisons << endl;
+        cout << endl << "Número de trocas: " << tradeCount << endl;
 
-        WriteFile(elapsedTime, comparisons, option, op);
+        WriteFile(elapsedTime, comparisons, tradeCount, option, op);
 
     } else if(option == 6) {
         startCount = clock(); 
-        ShellSort(v2, tam2, &comparisons);       
+        ShellSort(v2, tam2, &comparisons, &tradeCount);       
         endCount = clock();  
 
         clockCount = endCount - startCount;
@@ -978,12 +1075,13 @@ void SortFile10000(int v2[], int option, int op) { // Função que irá ordernar
         PrintArray(v2, tam2); 
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
         cout << endl << "Comparacoes: " << comparisons << endl;
+        cout << endl << "Número de trocas: " << tradeCount << endl;
 
-        WriteFile(elapsedTime, comparisons, option, op);
+        WriteFile(elapsedTime, comparisons, tradeCount, option, op);
     }
 }
 void SortFile100000(int v3[], int option, int op) { // Função que irá ordernar os arquivos de tamanho 100.000.
-    unsigned long long comparisons = 0;
+    unsigned long long comparisons = 0, tradeCount = 0;
     clock_t startCount, endCount;
     long double clockCount, elapsedTime;
 
@@ -991,7 +1089,7 @@ void SortFile100000(int v3[], int option, int op) { // Função que irá orderna
 
     if(option == 1) {
         startCount = clock(); 
-        BubbleSort(v3, tam3, &comparisons);       
+        BubbleSort(v3, tam3, &comparisons, &tradeCount);       
         endCount = clock(); 
 
         clockCount = endCount - startCount; 
@@ -1000,12 +1098,13 @@ void SortFile100000(int v3[], int option, int op) { // Função que irá orderna
         PrintArray(v3, tam3); 
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
         cout << endl << "Comparacoes: " << comparisons << endl;
+        cout << endl << "Número de trocas: " << tradeCount << endl;
 
-        WriteFile(elapsedTime, comparisons, option, op);
+        WriteFile(elapsedTime, comparisons, tradeCount, option, op);
 
     }else if(option == 2) {
         startCount = clock(); 
-        InsertionSort(v3, tam3, &comparisons); 
+        InsertionSort(v3, tam3, &comparisons, &tradeCount); 
         endCount = clock(); 
 
         clockCount = endCount - startCount; 
@@ -1014,12 +1113,13 @@ void SortFile100000(int v3[], int option, int op) { // Função que irá orderna
         PrintArray(v3, tam3);
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
         cout << endl << "Comparacoes: " << comparisons << endl;
+        cout << endl << "Número de trocas: " << tradeCount << endl;
 
-        WriteFile(elapsedTime, comparisons, option, op);
+        WriteFile(elapsedTime, comparisons, tradeCount, option, op);
 
     } else if(option == 3) {
         startCount = clock(); 
-        SelectionSort(v3, tam3, &comparisons);      
+        SelectionSort(v3, tam3, &comparisons, &tradeCount);      
         endCount = clock();  
 
         clockCount = endCount - startCount;
@@ -1028,12 +1128,13 @@ void SortFile100000(int v3[], int option, int op) { // Função que irá orderna
         PrintArray(v3, tam3);
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
         cout << endl << "Comparacoes: " << comparisons << endl;
+        cout << endl << "Número de trocas: " << tradeCount << endl;
 
-        WriteFile(elapsedTime, comparisons, option, op);
+        WriteFile(elapsedTime, comparisons, tradeCount, option, op);
 
     } else if(option == 4) {
         startCount = clock(); 
-        QuickSort(v3, 0, tam3, &comparisons);       
+        QuickSort(v3, 0, tam3, &comparisons, &tradeCount);       
         endCount = clock();  
 
         clockCount = endCount - startCount;
@@ -1043,11 +1144,11 @@ void SortFile100000(int v3[], int option, int op) { // Função que irá orderna
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
         cout << endl << "Comparacoes: " << comparisons << endl;
 
-        WriteFile(elapsedTime, comparisons, option, op);
+        WriteFile(elapsedTime, comparisons, tradeCount, option, op);
 
     }  else if(option == 5) {
         startCount = clock(); 
-        MergeSort(v3, 0, tam3 - 1, &comparisons);        
+        MergeSort(v3, 0, tam3 - 1, &comparisons, &tradeCount);        
         endCount = clock();  
 
         clockCount = endCount - startCount;
@@ -1056,12 +1157,13 @@ void SortFile100000(int v3[], int option, int op) { // Função que irá orderna
         PrintArray(v3, tam3);
         cout << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
         cout << endl << "Comparacoes: " << comparisons << endl;
+        cout << endl << "Número de trocas: " << tradeCount << endl;
 
-        WriteFile(elapsedTime, comparisons, option, op);
+        WriteFile(elapsedTime, comparisons, tradeCount, option, op);
 
     } else if(option == 6) {
         startCount = clock(); 
-        ShellSort(v3, tam3, &comparisons);       
+        ShellSort(v3, tam3, &comparisons, &tradeCount);       
         endCount = clock();  
 
         clockCount = endCount - startCount;
@@ -1070,8 +1172,9 @@ void SortFile100000(int v3[], int option, int op) { // Função que irá orderna
         PrintArray(v3, tam3); 
         cout  << endl << "Tempo decorrido: " << elapsedTime << " segundos." << endl;
         cout << endl << "Comparacoes: " << comparisons << endl;
+        cout << endl << "Número de trocas: " << tradeCount << endl;
 
-        WriteFile(elapsedTime, comparisons, option, op);
+        WriteFile(elapsedTime, comparisons, tradeCount, option, op);
     }
 }
 
